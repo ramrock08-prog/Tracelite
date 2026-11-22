@@ -197,3 +197,20 @@ def report():
     for model, latency, prompt in slowest:
         snippet = (prompt or "")[:32]
         print(f"{latency:>7.1f} ms  [{model}]  {snippet}")
+
+    # Week 2: cost per day
+    with _connect() as conn:
+        daily = conn.execute(
+            """
+            SELECT substr(ts, 1, 10) AS day, COUNT(*), SUM(cost_usd)
+            FROM traces
+            GROUP BY day
+            ORDER BY day
+            """
+        ).fetchall()
+
+    print()
+    print("Cost by day")
+    print("-" * 34)
+    for day, count, cost in daily:
+        print(f"{day}  {count:>3} calls  ${(cost or 0.0):.6f}")
