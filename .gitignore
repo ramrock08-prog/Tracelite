@@ -10,6 +10,9 @@ __pycache__/
 .venv/
 venv/
 
+# Personal planning (not part of the public project)
+PLAN.md
+
 # Editor / OS junk
 .vscode/
 .idea/

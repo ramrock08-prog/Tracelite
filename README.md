@@ -42,10 +42,7 @@ possible version: one file of Python, one SQLite file, one report.
 | Building a web server + frontend | `tracelite/dashboard.py` |
 | Writing tests | `tests/test_tracker.py` |
 | Git & GitHub | from day one, every change committed |
-| Packaging & deployment | Week 4 (todo) |
-
-Honest limits: it does **not** teach React, auth, or large-scale system design.
-That's OK for a first project. Finishing one real thing beats starting five.
+| Packaging & deployment | not done yet |
 
 ## Run it right now
 
@@ -96,50 +93,12 @@ python -m unittest discover -s tests -v
 
 All 9 tests should pass (`OK`).
 
-## Roadmap
+## What's next
 
-### Week 0 — set yourself up (done)
-- [x] `git init` and push to a public GitHub repo
-- [x] Commit after every working change with a real message
-- [x] `git add .` -> `git commit -m "..."` -> `git push`
-
-### Week 1 — core tracker (done)
-- [x] SQLite schema for traces
-- [x] `track()` context manager: latency, errors, token counts
-- [x] `report()` CLI: count, cost, p50/p95 latency, error rate
-- [x] Real price rows in `PRICES`
-- [x] Read `track()` line by line
-
-### Week 2 — make the report useful + start testing (done)
-- [x] Per-model breakdown (cost + latency by model)
-- [x] Slowest calls listed
-- [x] Daily cost trend (group by date)
-- [x] Tests for `estimate_cost` and the report math
-
-### Week 3 — real model + a viewable dashboard (done)
-- [x] Wire it to a real free model: **Ollama** (`examples/real_ollama.py`)
-- [x] Tiny local dashboard to browse traces (`tracelite/dashboard.py`)
-
-### Week 4 — ship + get seen (STRETCH: the killer feature)
-- [ ] `diff` command: rerun saved test prompts against two prompt versions,
-      show which outputs changed  <-- this is "LLM regression testing"
-- [ ] `pip install -e .` with a real console entry point (`tracelite report`)
-- [ ] README screenshots + a 2-minute Loom demo
-- [ ] Outreach (see below)
-
-## Outreach playbook (India market)
-
-Target dev-tool and AI-first companies: **Postman, Hasura, Freshworks, Zoho,
-Sarvam AI, Yellow.ai, Observe.AI, Haptik**.
-
-1. Post the README + Loom on LinkedIn + X with `#buildinpublic`.
-2. Cross-post to **r/developersIndia** and **r/IndiaStartups**.
-3. Cold-DM 10–15 founders / eng leads:
-   > "Hi [name] — I follow [company]. I built a small tool that tracks LLM
-   > cost/latency/failures and catches prompt regressions. Here's a 2-min demo.
-   > Would love to show you / get feedback."
-4. Parallel track: contribute a good-first-issue to **Langfuse** (open-source LLM
-   observability). Visible OSS work is a second proof of the same skill.
+- A `diff` command: rerun saved prompts across two prompt versions and show what
+  changed (LLM regression testing)
+- Make it installable: `pip install -e .` with a `tracelite report` command
+- Screenshots and a short demo video
 
 ## Project structure
 
