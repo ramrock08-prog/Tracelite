@@ -24,7 +24,8 @@ possible version: one file of Python, one SQLite file, one report.
 - `tl.init("traces.db")` — create/point at the trace database
 - `tl.track(model=..., provider=..., prompt=...)` — a context manager that times
   and logs one LLM call (including errors and estimated cost)
-- `tl.report()` — print total calls, cost, latency p50/p95, and error rate
+- `tl.report()` — prints total calls, cost, latency p50/p95, and error rate,
+  **plus** a per-model breakdown, the slowest calls, and cost by day
 - Works with **no API keys** — the example uses a fake model, and you can later
   swap in Ollama (free, local) or any free model tier
 
@@ -41,7 +42,7 @@ gets asked about, and each skill is attached to a real piece of the tool:
 | HTTP & calling APIs | Week 3, wiring a real model (Ollama / free tier) |
 | Backend web (FastAPI) | Week 3 dashboard |
 | Basic frontend (HTML/JS) | Week 3 dashboard page |
-| Writing tests | Week 2, unit tests for cost + report math |
+| Writing tests | `tests/test_tracker.py` |
 | Git & GitHub | from day one, every change committed |
 | Packaging & deployment | Week 4, `pip install -e .` + deploy the dashboard free |
 
@@ -57,27 +58,40 @@ cd tracelite
 python examples/quickstart.py
 ```
 
-You should see a few traces get logged, then a cost/latency report.
+You should see a few traces get logged, then a report with these sections:
+
+1. **Summary** — calls, total cost, latency p50/p95, error rate
+2. **By model** — cost and speed per model
+3. **Slowest calls** — the 3 slowest requests
+4. **Cost by day** — spend over time
+
+## Run the tests
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+All 9 tests should pass (`OK`).
 
 ## Roadmap
 
-### Week 0 — set yourself up (do this first)
-- [ ] `git init` in this folder and push it to a new **public** GitHub repo
-- [ ] Commit after every working change with a real message ("add per-model report")
-- [ ] Learn one: `git add .` -> `git commit -m "..."` -> `git push`
+### Week 0 — set yourself up (done)
+- [x] `git init` in this folder and push it to a new **public** GitHub repo
+- [x] Commit after every working change with a real message ("add per-model report")
+- [x] Learn one: `git add .` -> `git commit -m "..."` -> `git push`
 
-### Week 1 — core tracker (this scaffold)
+### Week 1 — core tracker (done)
 - [x] SQLite schema for traces
 - [x] `track()` context manager: latency, errors, token counts
 - [x] `report()` CLI: count, cost, p50/p95 latency, error rate
-- [ ] Add a few real price rows as you learn (see `PRICES` in `tracelite/tracker.py`)
-- [ ] Read `track()` line by line until you can explain it out loud
+- [x] Add a few real price rows as you learn (see `PRICES` in `tracelite/tracker.py`)
+- [x] Read `track()` line by line until you can explain it out loud
 
-### Week 2 — make the report useful + start testing
-- [ ] Per-model breakdown (cost + latency by model)
-- [ ] Slowest calls listed
-- [ ] Daily cost trend (group by date)
-- [ ] Write tests for `estimate_cost` and the report math
+### Week 2 — make the report useful + start testing (done)
+- [x] Per-model breakdown (cost + latency by model)
+- [x] Slowest calls listed
+- [x] Daily cost trend (group by date)
+- [x] Write tests for `estimate_cost` and the report math
 
 ### Week 3 — real model + a viewable dashboard
 - [ ] Wire it to a real free model: **Ollama** locally, or a Groq/Gemini free tier
@@ -114,4 +128,6 @@ tracelite/
     tracker.py        # the whole library
   examples/
     quickstart.py     # runnable demo with a fake model
+  tests/
+    test_tracker.py   # unit tests
 ```
