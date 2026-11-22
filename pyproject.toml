@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tracelite"
+version = "0.1.0"
+description = "A tiny, local, zero-dependency LLM observability tracker"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [{ name = "Ram Charan" }]
+keywords = ["llm", "observability", "ai", "cost", "latency", "evals"]
+
+[project.scripts]
+tracelite = "tracelite.cli:main"
+
+[tool.setuptools]
+packages = ["tracelite"]

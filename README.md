@@ -27,8 +27,8 @@ possible version: one file of Python, one SQLite file, one report.
   and logs one LLM call (including errors and estimated cost)
 - `tl.report()` — prints total calls, cost, latency p50/p95, and error rate,
   **plus** a per-model breakdown, the slowest calls, and cost by day
-- `python -m tracelite.dashboard` — a tiny local web dashboard (browser view)
-- `python -m tracelite.diff` — **LLM regression testing** (what changed vs baseline)
+- `tracelite dashboard` — a tiny local web dashboard (browser view)
+- `tracelite diff` — **LLM regression testing** (what changed vs baseline)
 - `tracelite/ollama.py` — one small helper that talks to a real local model
 - Runnable demos with a **fake** model (`examples/quickstart.py`) and a **real**
   local model (`examples/real_ollama.py`)
@@ -45,10 +45,24 @@ possible version: one file of Python, one SQLite file, one report.
 | Building a web server + frontend | `tracelite/dashboard.py` |
 | LLM regression testing (evals) | `tracelite/diff.py` |
 | Writing tests | `tests/test_tracker.py` |
+| Packaging (a real CLI) | `pyproject.toml` + `tracelite/cli.py` |
 | Git & GitHub | from day one, every change committed |
-| Packaging & deployment | not done yet |
 
-## Run it right now
+## Install it (adds the `tracelite` command)
+
+```bash
+pip install -e .
+```
+
+Now you can run it from anywhere:
+
+```bash
+tracelite report          # cost / latency / error report
+tracelite dashboard       # local web dashboard
+tracelite diff --save     # save an LLM regression baseline
+```
+
+## Run it without installing
 
 Requires Python 3.9+. Nothing to install.
 
@@ -76,7 +90,7 @@ Local models are **free**, so their cost shows as `$0` — but the latency is re
 ## View the dashboard
 
 ```bash
-python -m tracelite.dashboard
+tracelite dashboard
 ```
 
 Then open **http://localhost:8765** in your browser. The page auto-refreshes
@@ -90,8 +104,8 @@ exactly which answers changed — so a prompt edit that breaks other cases can't
 sneak through.
 
 ```bash
-python -m tracelite.diff --save    # save the baseline (golden.json)
-python -m tracelite.diff           # rerun and compare
+tracelite diff --save    # save the baseline (golden.json)
+tracelite diff           # rerun and compare
 ```
 
 It runs at `temperature 0` for repeatability. Edit `testcases.json` to choose
@@ -107,7 +121,6 @@ All 9 tests should pass (`OK`).
 
 ## What's next
 
-- Make it installable: `pip install -e .` with a `tracelite` command
 - Screenshots and a short demo video
 
 ## Project structure
@@ -115,6 +128,8 @@ All 9 tests should pass (`OK`).
 ```
 tracelite/
   README.md
+  LICENSE
+  pyproject.toml      # packaging: makes the `tracelite` command
   setup_ollama.ps1    # one-file Ollama setup (install + models + server + pull)
   testcases.json      # prompts used by the regression check
   tracelite/
@@ -123,6 +138,7 @@ tracelite/
     dashboard.py      # tiny local web dashboard
     diff.py           # LLM regression testing
     ollama.py         # helper to call a real local model
+    cli.py            # the `tracelite` command
   examples/
     quickstart.py     # demo with a fake model
     real_ollama.py    # demo with a real local model

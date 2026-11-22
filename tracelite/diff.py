@@ -9,6 +9,11 @@ Usage (from the project folder):
     python -m tracelite.diff --save     # save current answers as the baseline
     python -m tracelite.diff            # rerun and show what changed
 
+or, once installed:
+
+    tracelite diff --save
+    tracelite diff
+
 It uses the prompts in testcases.json and runs them at temperature 0 so the
 answers are as repeatable as possible.
 """
@@ -44,13 +49,8 @@ def similarity(a, b):
     return difflib.SequenceMatcher(None, a, b).ratio()
 
 
-def main():
-    parser = argparse.ArgumentParser(description="TraceLite LLM regression check")
-    parser.add_argument(
-        "--save", action="store_true", help="save current answers as the baseline"
-    )
-    args = parser.parse_args()
-
+def run(save=False):
+    """Run the check. With save=True (or no baseline yet), store the baseline."""
     cases = load_cases()
     print(f"Running {len(cases)} test cases through {MODEL} ...\n")
 
@@ -61,7 +61,7 @@ def main():
         return
 
     # First run (or --save): store the baseline and stop.
-    if args.save or not os.path.exists(BASELINE):
+    if save or not os.path.exists(BASELINE):
         with open(BASELINE, "w", encoding="utf-8") as f:
             json.dump(current, f, indent=2, ensure_ascii=False)
         print(f"Saved baseline to {BASELINE} ({len(current)} answers).")
@@ -90,6 +90,15 @@ def main():
         print("No regressions: every answer is identical to the baseline.")
     else:
         print(f"{changed} of {len(cases)} answers changed vs the baseline.")
+
+
+def main():
+    parser = argparse.ArgumentParser(description="TraceLite LLM regression check")
+    parser.add_argument(
+        "--save", action="store_true", help="save current answers as the baseline"
+    )
+    args = parser.parse_args()
+    run(save=args.save)
 
 
 if __name__ == "__main__":

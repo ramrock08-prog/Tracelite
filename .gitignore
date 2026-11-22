@@ -12,6 +12,7 @@ __pycache__/
 *.pyc
 .venv/
 venv/
+*.egg-info/
 
 # Personal planning (not part of the public project)
 PLAN.md
