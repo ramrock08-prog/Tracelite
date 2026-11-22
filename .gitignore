@@ -4,6 +4,9 @@
 traces.db
 *.db
 
+# Saved regression baseline (generated locally)
+golden.json
+
 # Python scratch files
 __pycache__/
 *.pyc

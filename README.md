@@ -5,6 +5,7 @@ A tiny, local, **zero-dependency** LLM observability tracker.
 Wrap any LLM call, and TraceLite records what happened: the prompt, the
 response, how long it took, how many tokens it used, what it cost, and whether
 it errored. Then it prints a report — or shows it on a small local dashboard.
+It can also catch **prompt regressions**: answers that changed after a prompt edit.
 
 ## Why this exists (the problem)
 
@@ -26,9 +27,11 @@ possible version: one file of Python, one SQLite file, one report.
   and logs one LLM call (including errors and estimated cost)
 - `tl.report()` — prints total calls, cost, latency p50/p95, and error rate,
   **plus** a per-model breakdown, the slowest calls, and cost by day
-- `tracelite/dashboard.py` — a tiny local web dashboard (browser view of traces)
-- A runnable demo with a **fake** model (`examples/quickstart.py`)
-- A runnable demo with a **real local** model via Ollama (`examples/real_ollama.py`)
+- `python -m tracelite.dashboard` — a tiny local web dashboard (browser view)
+- `python -m tracelite.diff` — **LLM regression testing** (what changed vs baseline)
+- `tracelite/ollama.py` — one small helper that talks to a real local model
+- Runnable demos with a **fake** model (`examples/quickstart.py`) and a **real**
+  local model (`examples/real_ollama.py`)
 - A one-file Ollama setup script (`setup_ollama.ps1`)
 - Works with **no API keys** and **no installs** — everything runs on your machine
 
@@ -38,8 +41,9 @@ possible version: one file of Python, one SQLite file, one report.
 | --- | --- |
 | Python: functions, classes, context managers, error handling | `tracelite/tracker.py` |
 | Databases & SQL | the SQLite schema + the `report()` queries |
-| HTTP & calling APIs | `examples/real_ollama.py` (Ollama HTTP API) |
+| HTTP & calling APIs | `tracelite/ollama.py` (Ollama HTTP API) |
 | Building a web server + frontend | `tracelite/dashboard.py` |
+| LLM regression testing (evals) | `tracelite/diff.py` |
 | Writing tests | `tests/test_tracker.py` |
 | Git & GitHub | from day one, every change committed |
 | Packaging & deployment | not done yet |
@@ -52,16 +56,10 @@ Requires Python 3.9+. Nothing to install.
 python examples/quickstart.py
 ```
 
-You should see a few traces get logged, then a report with these sections:
-
-1. **Summary** — calls, total cost, latency p50/p95, error rate
-2. **By model** — cost and speed per model
-3. **Slowest calls** — the 3 slowest requests
-4. **Cost by day** — spend over time
+You should see a few traces get logged, then a report with four sections:
+summary, by model, slowest calls, and cost by day.
 
 ## Use a real AI model (Ollama)
-
-TraceLite can track a **real local model**, not just the fake one.
 
 1. One-file setup — installs Ollama, stores models on your chosen drive, starts
    the server, and downloads the model:
@@ -85,6 +83,20 @@ Then open **http://localhost:8765** in your browser. The page auto-refreshes
 every 3 seconds, so you can run `examples/real_ollama.py` in another window and
 watch rows appear live. (Change the port with the `TRACELITE_PORT` env var.)
 
+## Catch prompt regressions (LLM diff)
+
+Save what the model answers today, then rerun the same prompts later and see
+exactly which answers changed — so a prompt edit that breaks other cases can't
+sneak through.
+
+```bash
+python -m tracelite.diff --save    # save the baseline (golden.json)
+python -m tracelite.diff           # rerun and compare
+```
+
+It runs at `temperature 0` for repeatability. Edit `testcases.json` to choose
+which prompts it tests.
+
 ## Run the tests
 
 ```bash
@@ -95,9 +107,7 @@ All 9 tests should pass (`OK`).
 
 ## What's next
 
-- A `diff` command: rerun saved prompts across two prompt versions and show what
-  changed (LLM regression testing)
-- Make it installable: `pip install -e .` with a `tracelite report` command
+- Make it installable: `pip install -e .` with a `tracelite` command
 - Screenshots and a short demo video
 
 ## Project structure
@@ -106,10 +116,13 @@ All 9 tests should pass (`OK`).
 tracelite/
   README.md
   setup_ollama.ps1    # one-file Ollama setup (install + models + server + pull)
+  testcases.json      # prompts used by the regression check
   tracelite/
     __init__.py
-    tracker.py        # the whole library
+    tracker.py        # the meter: log calls, print the report
     dashboard.py      # tiny local web dashboard
+    diff.py           # LLM regression testing
+    ollama.py         # helper to call a real local model
   examples/
     quickstart.py     # demo with a fake model
     real_ollama.py    # demo with a real local model
