@@ -159,3 +159,23 @@ def report():
     print(f"latency p50  : {_percentile(latencies, 50):.1f} ms")
     print(f"latency p95  : {_percentile(latencies, 95):.1f} ms")
     print(f"errors       : {errors} ({errors / len(rows) * 100:.1f}%)")
+
+    # Week 2: per-model breakdown
+    with _connect() as conn:
+        by_model = conn.execute(
+            """
+            SELECT model, COUNT(*), SUM(cost_usd), AVG(latency_ms)
+            FROM traces
+            GROUP BY model
+            ORDER BY SUM(cost_usd) DESC
+            """
+        ).fetchall()
+
+    print()
+    print("By model")
+    print("-" * 34)
+    for model, count, cost, avg_latency in by_model:
+        print(
+            f"{model:<14} {count:>3} calls  "
+            f"{avg_latency:>7.1f} ms avg  ${(cost or 0.0):.6f}"
+        )

@@ -36,15 +36,17 @@ def main():
     db = tl.init("traces.db")
     print(f"Logging traces to: {os.path.abspath(db)}\n")
 
-    for prompt in PROMPTS:
-        with tl.track("gpt-4o-mini", provider="ollama", prompt=prompt) as span:
+    # Use two different model names so the report can show a per-model breakdown.
+    models = ["gpt-4o-mini", "gpt-4o", "gpt-4o-mini", "gpt-4o"]
+    for prompt, model in zip(PROMPTS, models):
+        with tl.track(model, provider="openai", prompt=prompt) as span:
             reply, pt, ct = fake_model(prompt)
             span.set_response(reply, pt, ct)
-        print(f"  logged: {prompt[:45]}")
+        print(f"  logged [{model}]: {prompt[:40]}")
 
     # Show that failures get captured too (this one raises on purpose).
     try:
-        with tl.track("gpt-4o-mini", provider="ollama", prompt="this one breaks"):
+        with tl.track("gpt-4o-mini", provider="openai", prompt="this one breaks"):
             raise ValueError("model returned 500")
     except ValueError:
         print("  logged: a failure (on purpose)")
