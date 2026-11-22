@@ -4,7 +4,7 @@ A tiny, local, **zero-dependency** LLM observability tracker.
 
 Wrap any LLM call, and TraceLite records what happened: the prompt, the
 response, how long it took, how many tokens it used, what it cost, and whether
-it errored. Then it prints a report.
+it errored. Then it prints a report — or shows it on a small local dashboard.
 
 ## Why this exists (the problem)
 
@@ -26,10 +26,11 @@ possible version: one file of Python, one SQLite file, one report.
   and logs one LLM call (including errors and estimated cost)
 - `tl.report()` — prints total calls, cost, latency p50/p95, and error rate,
   **plus** a per-model breakdown, the slowest calls, and cost by day
+- `tracelite/dashboard.py` — a tiny local web dashboard (browser view of traces)
 - A runnable demo with a **fake** model (`examples/quickstart.py`)
 - A runnable demo with a **real local** model via Ollama (`examples/real_ollama.py`)
 - A one-file Ollama setup script (`setup_ollama.ps1`)
-- Works with **no API keys** — everything can run on your own machine
+- Works with **no API keys** and **no installs** — everything runs on your machine
 
 ## Skills in this project
 
@@ -38,9 +39,9 @@ possible version: one file of Python, one SQLite file, one report.
 | Python: functions, classes, context managers, error handling | `tracelite/tracker.py` |
 | Databases & SQL | the SQLite schema + the `report()` queries |
 | HTTP & calling APIs | `examples/real_ollama.py` (Ollama HTTP API) |
+| Building a web server + frontend | `tracelite/dashboard.py` |
 | Writing tests | `tests/test_tracker.py` |
 | Git & GitHub | from day one, every change committed |
-| Backend web (FastAPI) | Week 3 dashboard (todo) |
 | Packaging & deployment | Week 4 (todo) |
 
 Honest limits: it does **not** teach React, auth, or large-scale system design.
@@ -77,6 +78,16 @@ TraceLite can track a **real local model**, not just the fake one.
 
 Local models are **free**, so their cost shows as `$0` — but the latency is real.
 
+## View the dashboard
+
+```bash
+python -m tracelite.dashboard
+```
+
+Then open **http://localhost:8765** in your browser. The page auto-refreshes
+every 3 seconds, so you can run `examples/real_ollama.py` in another window and
+watch rows appear live. (Change the port with the `TRACELITE_PORT` env var.)
+
 ## Run the tests
 
 ```bash
@@ -105,9 +116,9 @@ All 9 tests should pass (`OK`).
 - [x] Daily cost trend (group by date)
 - [x] Tests for `estimate_cost` and the report math
 
-### Week 3 — real model + a viewable dashboard
+### Week 3 — real model + a viewable dashboard (done)
 - [x] Wire it to a real free model: **Ollama** (`examples/real_ollama.py`)
-- [ ] Tiny local dashboard (FastAPI + one HTML page) to browse traces
+- [x] Tiny local dashboard to browse traces (`tracelite/dashboard.py`)
 
 ### Week 4 — ship + get seen (STRETCH: the killer feature)
 - [ ] `diff` command: rerun saved test prompts against two prompt versions,
@@ -139,6 +150,7 @@ tracelite/
   tracelite/
     __init__.py
     tracker.py        # the whole library
+    dashboard.py      # tiny local web dashboard
   examples/
     quickstart.py     # demo with a fake model
     real_ollama.py    # demo with a real local model
