@@ -179,3 +179,21 @@ def report():
             f"{model:<14} {count:>3} calls  "
             f"{avg_latency:>7.1f} ms avg  ${(cost or 0.0):.6f}"
         )
+
+    # Week 2: the slowest calls
+    with _connect() as conn:
+        slowest = conn.execute(
+            """
+            SELECT model, latency_ms, prompt
+            FROM traces
+            ORDER BY latency_ms DESC
+            LIMIT 3
+            """
+        ).fetchall()
+
+    print()
+    print("Slowest calls")
+    print("-" * 34)
+    for model, latency, prompt in slowest:
+        snippet = (prompt or "")[:32]
+        print(f"{latency:>7.1f} ms  [{model}]  {snippet}")
