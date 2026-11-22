@@ -19,32 +19,29 @@ Tools that solve this (LangSmith, Braintrust, Langfuse) are either expensive,
 heavy, or too enterprise-shaped for a small team. TraceLite is the smallest
 possible version: one file of Python, one SQLite file, one report.
 
-## What's built so far (v0)
+## What's built so far
 
 - `tl.init("traces.db")` — create/point at the trace database
 - `tl.track(model=..., provider=..., prompt=...)` — a context manager that times
   and logs one LLM call (including errors and estimated cost)
 - `tl.report()` — prints total calls, cost, latency p50/p95, and error rate,
   **plus** a per-model breakdown, the slowest calls, and cost by day
-- Works with **no API keys** — the example uses a fake model, and you can later
-  swap in Ollama (free, local) or any free model tier
+- A runnable demo with a **fake** model (`examples/quickstart.py`)
+- A runnable demo with a **real local** model via Ollama (`examples/real_ollama.py`)
+- A one-file Ollama setup script (`setup_ollama.ps1`)
+- Works with **no API keys** — everything can run on your own machine
 
-## Skills you'll actually learn
-
-This is not one skill in isolation. By the end it covers most of what an intern
-gets asked about, and each skill is attached to a real piece of the tool:
+## Skills in this project
 
 | Skill | Where you practise it |
 | --- | --- |
 | Python: functions, classes, context managers, error handling | `tracelite/tracker.py` |
 | Databases & SQL | the SQLite schema + the `report()` queries |
-| CLI tools & argument parsing | `python -m tracelite report` (Week 2) |
-| HTTP & calling APIs | Week 3, wiring a real model (Ollama / free tier) |
-| Backend web (FastAPI) | Week 3 dashboard |
-| Basic frontend (HTML/JS) | Week 3 dashboard page |
+| HTTP & calling APIs | `examples/real_ollama.py` (Ollama HTTP API) |
 | Writing tests | `tests/test_tracker.py` |
 | Git & GitHub | from day one, every change committed |
-| Packaging & deployment | Week 4, `pip install -e .` + deploy the dashboard free |
+| Backend web (FastAPI) | Week 3 dashboard (todo) |
+| Packaging & deployment | Week 4 (todo) |
 
 Honest limits: it does **not** teach React, auth, or large-scale system design.
 That's OK for a first project. Finishing one real thing beats starting five.
@@ -54,7 +51,6 @@ That's OK for a first project. Finishing one real thing beats starting five.
 Requires Python 3.9+. Nothing to install.
 
 ```bash
-cd tracelite
 python examples/quickstart.py
 ```
 
@@ -64,6 +60,22 @@ You should see a few traces get logged, then a report with these sections:
 2. **By model** — cost and speed per model
 3. **Slowest calls** — the 3 slowest requests
 4. **Cost by day** — spend over time
+
+## Use a real AI model (Ollama)
+
+TraceLite can track a **real local model**, not just the fake one.
+
+1. One-file setup — installs Ollama, stores models on your chosen drive, starts
+   the server, and downloads the model:
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File .\setup_ollama.ps1
+   ```
+2. Track a real model:
+   ```bash
+   python examples/real_ollama.py
+   ```
+
+Local models are **free**, so their cost shows as `$0` — but the latency is real.
 
 ## Run the tests
 
@@ -76,25 +88,25 @@ All 9 tests should pass (`OK`).
 ## Roadmap
 
 ### Week 0 — set yourself up (done)
-- [x] `git init` in this folder and push it to a new **public** GitHub repo
-- [x] Commit after every working change with a real message ("add per-model report")
-- [x] Learn one: `git add .` -> `git commit -m "..."` -> `git push`
+- [x] `git init` and push to a public GitHub repo
+- [x] Commit after every working change with a real message
+- [x] `git add .` -> `git commit -m "..."` -> `git push`
 
 ### Week 1 — core tracker (done)
 - [x] SQLite schema for traces
 - [x] `track()` context manager: latency, errors, token counts
 - [x] `report()` CLI: count, cost, p50/p95 latency, error rate
-- [x] Add a few real price rows as you learn (see `PRICES` in `tracelite/tracker.py`)
-- [x] Read `track()` line by line until you can explain it out loud
+- [x] Real price rows in `PRICES`
+- [x] Read `track()` line by line
 
 ### Week 2 — make the report useful + start testing (done)
 - [x] Per-model breakdown (cost + latency by model)
 - [x] Slowest calls listed
 - [x] Daily cost trend (group by date)
-- [x] Write tests for `estimate_cost` and the report math
+- [x] Tests for `estimate_cost` and the report math
 
 ### Week 3 — real model + a viewable dashboard
-- [ ] Wire it to a real free model: **Ollama** locally, or a Groq/Gemini free tier
+- [x] Wire it to a real free model: **Ollama** (`examples/real_ollama.py`)
 - [ ] Tiny local dashboard (FastAPI + one HTML page) to browse traces
 
 ### Week 4 — ship + get seen (STRETCH: the killer feature)
@@ -123,11 +135,13 @@ Sarvam AI, Yellow.ai, Observe.AI, Haptik**.
 ```
 tracelite/
   README.md
+  setup_ollama.ps1    # one-file Ollama setup (install + models + server + pull)
   tracelite/
     __init__.py
     tracker.py        # the whole library
   examples/
-    quickstart.py     # runnable demo with a fake model
+    quickstart.py     # demo with a fake model
+    real_ollama.py    # demo with a real local model
   tests/
     test_tracker.py   # unit tests
 ```
